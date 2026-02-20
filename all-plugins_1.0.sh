@@ -19,13 +19,7 @@ echo "#       Start downloading and installing all-plugins_1.0       #"
 echo "################################################################"
 echo -e "${NC}"
 
-# User confirmation
-echo -e "${YELLOW}This script will download and install all-plugins_1.0. Do you want to continue? (y/n)${NC}"
-read -r RESPONSE
-if [ "$RESPONSE" != "y" ]; then
-    echo -e "${BLUE}Installation cancelled.${NC}"
-    exit 0
-fi
+# Removed user confirmation section
 
 # Check internet connection
 echo -e "${YELLOW}Checking internet connection...${NC}"
