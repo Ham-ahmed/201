@@ -1,7 +1,9 @@
 #!/bin/bash
 #
+# Script to download and install all-plugins_1.0 package
+# Original Arabic script translated to English
 
-# Colors to go out
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -17,7 +19,7 @@ echo "#       Start downloading and installing all-plugins_1.0       #"
 echo "################################################################"
 echo -e "${NC}"
 
-# تأكيد المستخدم
+# User confirmation
 echo -e "${YELLOW}This script will download and install all-plugins_1.0. Do you want to continue? (y/n)${NC}"
 read -r RESPONSE
 if [ "$RESPONSE" != "y" ]; then
@@ -25,7 +27,7 @@ if [ "$RESPONSE" != "y" ]; then
     exit 0
 fi
 
-# التحقق من الاتصال بالإنترنت
+# Check internet connection
 echo -e "${YELLOW}Checking internet connection...${NC}"
 if ping -c 1 google.com &> /dev/null; then
     echo -e "${GREEN}✓ Internet connection is OK.${NC}"
@@ -55,7 +57,7 @@ if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ The plugin has been installed successfully.${NC}"
 else
     echo -e "${RED}✗ Failed to install the plugin.${NC}"
-    # لا نخرج هنا، ربما نريد تنظيف الملفات حتى لو فشلت
+    # Don't exit here, maybe we want to clean up files even if it fails
 fi
 
 echo -e "${YELLOW}Cleaning temporary files...${NC}"
@@ -73,9 +75,9 @@ echo -e "${PURPLE}"
 echo ""
 echo ""
 echo "#################################################################"
-echo "#${GREEN}             تم التثبيت بنجاح   ${PURPLE}              #"
+echo "#${GREEN}   Installation completed successfully   ${PURPLE}     #"
 echo "#${BLUE}               ON - plugin v7.5 ${PURPLE}               #"
-echo "#${YELLOW}       A reboot is required Enigma2 ${PURPLE}         #"
+echo "#${YELLOW}     A reboot is required for Enigma2 ${PURPLE}       #"
 echo "#${CYAN}      .::Uploaded by  >>>> HAMDY_AHMED::.  ${PURPLE}    #"
 echo "#${WHITE} https://www.facebook.com/share/g/18qCRuHz26/ ${PURPLE}#"
 echo "#################################################################"
