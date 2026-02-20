@@ -36,7 +36,20 @@ package="/var/volatile/tmp/$plugin-$version.tar.gz"
 # Create target directory if it doesn't exist
 mkdir -p "/var/volatile/tmp"
 
-echo "> Downloading $plugin-$version package ..."
+# ===================================================================
+# Modification 1: Display script content during download
+# ===================================================================
+echo "> Starting download of package $plugin-$version ..."
+echo "> Displaying script content during download:"
+echo "————————————————————————————————————————"
+# Display next few lines of the script (simulating content display)
+# Actually, here you can display instructions or package details
+echo "${CYAN}Package Information:${NC}"
+echo "${WHITE}- Package name: $plugin${NC}"
+echo "${WHITE}- Version: $version${NC}"
+echo "${WHITE}- Source: GitLab${NC}"
+echo "${WHITE}- Description: Comprehensive package for all plugins${NC}"
+echo "————————————————————————————————————————"
 sleep 3
 
 # Check internet connection and download package
@@ -46,16 +59,22 @@ if command -v wget >/dev/null 2>&1; then
         echo "${RED}> Failed to connect to internet or invalid URL${NC}"
         exit 1
     fi
-    # Download package
-    wget -q --no-check-certificate --timeout=10 --tries=3 -O "$package" "$url"
+    # Download package with progress display
+    echo "> Downloading (with progress display) ..."
+    wget --no-check-certificate --timeout=10 --tries=3 -O "$package" "$url" 2>&1 | while read line; do
+        # Display download progress (you can customize this message)
+        echo -n "."
+    done
+    echo "" # New line after dots finish
 elif command -v curl >/dev/null 2>&1; then
     # Check if URL is accessible
     if ! curl -s --head "$url" | head -n 1 | grep "200 OK" >/dev/null; then
         echo "${RED}> Failed to connect to internet or invalid URL${NC}"
         exit 1
     fi
-    # Download package
-    curl -s -k --connect-timeout 10 --retry 3 -o "$package" "$url"
+    # Download package with progress display
+    echo "> Downloading (with progress display) ..."
+    curl -# -k --connect-timeout 10 --retry 3 -o "$package" "$url"
 else
     echo "${RED}> Neither wget nor curl found${NC}"
     exit 1
@@ -67,23 +86,40 @@ if [ $? -ne 0 ] || [ ! -f "$package" ]; then
     exit 1
 fi
 
+# ===================================================================
+# Modification 2: Simplified success message after download
+# ===================================================================
+echo ""
+echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+echo -e "${GREEN}              ✅ Download completed successfully!               ${NC}"
+echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+echo -e "${BLUE}   ▶ Package downloaded to: $package${NC}"
+echo -e "${BLUE}   ▶ Package size: $(du -h $package | cut -f1)${NC}"
+echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+echo ""
+echo "> Extracting package and installing files ..."
+sleep 2
+
 # Extract package
 tar -xzf "$package" -C /
 extract=$?
 
+# ===================================================================
+# Modification 3: Success and completion message (after installation)
+# ===================================================================
 if [ $extract -eq 0 ]; then
     echo ""
     echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}                      ✅ INSTALLATION SUCCESSFUL                ${NC}"
+    echo -e "${GREEN}           ✅ Download and installation completed successfully! ${NC}"
     echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}   ▶ Plugin: $plugin"
+    echo -e "${BLUE}   ▶ Package: $plugin"
     echo -e "${BLUE}   ▶ Version: v7.8"
-    echo -e "${YELLOW} ▶ Note: Device will restart automatically"
+    echo -e "${YELLOW}   ▶ Note: Device will restart automatically"
     echo -e "${CYAN}   ▶ Uploaded by: HAMDY_AHMED"
     echo -e "${WHITE}  ▶ Group link: https://www.facebook.com/share/g/18qCRuHz26/"
     echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
     echo ""
-    echo -e "${YELLOW}⏳ Restarting Enigma2 in 3 seconds...${NC}"
+    echo -e "${YELLOW}⏳ Enigma2 will restart in 3 seconds...${NC}"
     sleep 3
     # Safe Enigma2 restart
     if command -v init >/dev/null 2>&1; then
@@ -93,8 +129,8 @@ if [ $extract -eq 0 ]; then
     fi
 else
     echo -e "${RED}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${RED}              ❌ INSTALLATION FAILED                           ${NC}"
-    echo -e "${RED}         $plugin-$version package installation failed          ${NC}"
+    echo -e "${RED}              ❌ Installation failed                            ${NC}"
+    echo -e "${RED}         Failed to install package $plugin-$version             ${NC}"
     echo -e "${RED}═══════════════════════════════════════════════════════════════${NC}"
     exit 1
 fi
