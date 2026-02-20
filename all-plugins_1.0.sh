@@ -1,85 +1,102 @@
-#!/bin/bash
-#
-# Script to download and install all-plugins_1.0 package
-# Original Arabic script translated to English
+#!/bin/sh
 
-# Colors for output
+# Color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
+YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 WHITE='\033[1;37m'
 NC='\033[0m' # No Color
 
-echo -e "${CYAN}"
-echo "################################################################"
-echo "#       Start downloading and installing all-plugins_1.0       #"
-echo "################################################################"
-echo -e "${NC}"
+# Cleanup function
+cleanup() {
+    rm -f "$package" 2>/dev/null
+    rm -rf /tmp/*.ipk /tmp/*.tar.gz ./CONTROL ./control ./postinst ./preinst ./prerm ./postrm 2>/dev/null
+}
 
-# Removed user confirmation section
-
-# Check internet connection
-echo -e "${YELLOW}Checking internet connection...${NC}"
-if ping -c 1 google.com &> /dev/null; then
-    echo -e "${GREEN}✓ Internet connection is OK.${NC}"
-else
-    echo -e "${RED}✗ No internet connection. Please check your network.${NC}"
+# Check root permissions
+if [ "$(id -u)" -ne 0 ]; then
+    echo "${RED}> Script must be run with root privileges${NC}"
     exit 1
 fi
 
-IPK_URL="https://gitlab.com/h-ahmed/Panel/-/raw/main/All-plugins/enigma2-plugin-all-plugins_1.0_all.ipk"
-IPK_NAME="enigma2-plugin-all-plugins_1.0_all.ipk"
-IPK_PATH="/var/volatile/tmp/$IPK_NAME"
+# Set trap for cleanup on exit
+trap cleanup EXIT
 
-echo -e "${YELLOW}Downloading the plugin package...${NC}"
-wget --no-check-certificate -O $IPK_PATH $IPK_URL
+# Initial cleanup
+cleanup
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Plugin package has been downloaded successfully.${NC}"
+# Configuration
+plugin="All-plugins"
+version="1.0"
+url="https://gitlab.com/h-ahmed/Panel/-/raw/main/All-plugins/All-Plugins.tar.gz"
+package="/var/volatile/tmp/$plugin-$version.tar.gz"
+
+# Create target directory if it doesn't exist
+mkdir -p "/var/volatile/tmp"
+
+echo "> Downloading $plugin-$version package ..."
+sleep 3
+
+# Check internet connection and download package
+if command -v wget >/dev/null 2>&1; then
+    # Check if URL is accessible
+    if ! wget --spider -q "$url"; then
+        echo "${RED}> Failed to connect to internet or invalid URL${NC}"
+        exit 1
+    fi
+    # Download package
+    wget -q --no-check-certificate --timeout=10 --tries=3 -O "$package" "$url"
+elif command -v curl >/dev/null 2>&1; then
+    # Check if URL is accessible
+    if ! curl -s --head "$url" | head -n 1 | grep "200 OK" >/dev/null; then
+        echo "${RED}> Failed to connect to internet or invalid URL${NC}"
+        exit 1
+    fi
+    # Download package
+    curl -s -k --connect-timeout 10 --retry 3 -o "$package" "$url"
 else
-    echo -e "${RED}✗ Failed to download plugin package.${NC}"
+    echo "${RED}> Neither wget nor curl found${NC}"
     exit 1
 fi
 
-echo -e "${YELLOW}Installing the plugin...${NC}"
-opkg install --force-overwrite $IPK_PATH
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ The plugin has been installed successfully.${NC}"
-else
-    echo -e "${RED}✗ Failed to install the plugin.${NC}"
-    # Don't exit here, maybe we want to clean up files even if it fails
+# Check if download was successful
+if [ $? -ne 0 ] || [ ! -f "$package" ]; then
+    echo "${RED}> Package download failed${NC}"
+    exit 1
 fi
 
-echo -e "${YELLOW}Cleaning temporary files...${NC}"
-rm -f $IPK_PATH
+# Extract package
+tar -xzf "$package" -C /
+extract=$?
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Temporary files have been cleaned.${NC}"
+if [ $extract -eq 0 ]; then
+    echo ""
+    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}                      ✅ INSTALLATION SUCCESSFUL                ${NC}"
+    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}   ▶ Plugin: $plugin"
+    echo -e "${BLUE}   ▶ Version: v7.8"
+    echo -e "${YELLOW} ▶ Note: Device will restart automatically"
+    echo -e "${CYAN}   ▶ Uploaded by: HAMDY_AHMED"
+    echo -e "${WHITE}  ▶ Group link: https://www.facebook.com/share/g/18qCRuHz26/"
+    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo -e "${YELLOW}⏳ Restarting Enigma2 in 3 seconds...${NC}"
+    sleep 3
+    # Safe Enigma2 restart
+    if command -v init >/dev/null 2>&1; then
+        init 4 && sleep 2 && init 3 &
+    else
+        killall enigma2
+    fi
 else
-    echo -e "${YELLOW}⚠ Note: Unable to delete some temporary files.${NC}"
+    echo -e "${RED}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${RED}              ❌ INSTALLATION FAILED                           ${NC}"
+    echo -e "${RED}         $plugin-$version package installation failed          ${NC}"
+    echo -e "${RED}═══════════════════════════════════════════════════════════════${NC}"
+    exit 1
 fi
 
-sleep 2
-
-echo -e "${PURPLE}"
-echo ""
-echo ""
-echo "#################################################################"
-echo "#${GREEN}   Installation completed successfully   ${PURPLE}     #"
-echo "#${BLUE}               ON - plugin v7.5 ${PURPLE}               #"
-echo "#${YELLOW}     A reboot is required for Enigma2 ${PURPLE}       #"
-echo "#${CYAN}      .::Uploaded by  >>>> HAMDY_AHMED::.  ${PURPLE}    #"
-echo "#${WHITE} https://www.facebook.com/share/g/18qCRuHz26/ ${PURPLE}#"
-echo "#################################################################"
-echo "#${RED}        The device will now restart  ${PURPLE}           #"
-echo "#################################################################"
-echo -e "${NC}"
-
-wait
-echo -e "${YELLOW}Restarting Enigma2...${NC}"
-killall -9 enigma2
 exit 0
