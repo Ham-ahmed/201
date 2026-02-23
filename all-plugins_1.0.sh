@@ -91,7 +91,7 @@ fi
 # ===================================================================
 echo ""
 echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}              ✅ Download completed successfully!               ${NC}"
+echo -e "${GREEN}             ✅ Download completed successfully!               ${NC}"
 echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}   ▶ Package downloaded to: $package${NC}"
 echo -e "${BLUE}   ▶ Package size: $(du -h $package | cut -f1)${NC}"
@@ -110,13 +110,13 @@ extract=$?
 if [ $extract -eq 0 ]; then
     echo ""
     echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}           ✅ Download and installation completed successfully! ${NC}"
+    echo -e "${GREEN}      ✅ Download and installation completed successfully!     ${NC}"
     echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}   ▶ Package: $plugin"
-    echo -e "${BLUE}   ▶ Version: v7.8"
+    echo -e "${BLUE}     ▶ Package: $plugin"
+    echo -e "${BLUE}     ▶ Version: v8.0"
     echo -e "${YELLOW}   ▶ Note: Device will restart automatically"
-    echo -e "${CYAN}   ▶ Uploaded by: HAMDY_AHMED"
-    echo -e "${WHITE}  ▶ Group link: https://www.facebook.com/share/g/18qCRuHz26/"
+    echo -e "${CYAN}     ▶ Uploaded by: HAMDY_AHMED"
+    echo -e "${WHITE}    ▶ Group link: https://www.facebook.com/share/g/18qCRuHz26/"
     echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
     echo ""
     echo -e "${YELLOW}⏳ Enigma2 will restart in 3 seconds...${NC}"
@@ -129,8 +129,8 @@ if [ $extract -eq 0 ]; then
     fi
 else
     echo -e "${RED}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${RED}              ❌ Installation failed                            ${NC}"
-    echo -e "${RED}         Failed to install package $plugin-$version             ${NC}"
+    echo -e "${RED}              ❌ Installation failed                           ${NC}"
+    echo -e "${RED}         Failed to install package $plugin-$version            ${NC}"
     echo -e "${RED}═══════════════════════════════════════════════════════════════${NC}"
     exit 1
 fi
